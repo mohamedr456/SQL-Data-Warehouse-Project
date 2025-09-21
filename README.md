@@ -108,14 +108,14 @@ data-warehouse-project/
 └── requirements.txt                    # Project dependencies
 ````
 
-##🛡️ License
+## 🛡️ License
 
 This project is licensed under the MIT License.
 You are free to use, modify, and share this project with proper attribution.
 
 ---
 
-##🌟 About Me
+## 🌟 About Me
 
 Hi there! 👋 I’m Mohamed Rabea Mohamed, a passionate Data Analyst & Aspiring Data Engineer.
 I enjoy building data pipelines, warehouses, and analytical dashboards that transform raw data into meaningful insights.

@@ -106,12 +106,14 @@ data-warehouse-project/
 ├── LICENSE                             # License information
 ├── .gitignore                          # Ignored files for Git
 └── requirements.txt                    # Project dependencies
-
+````
 
 ##🛡️ License
 
 This project is licensed under the MIT License.
 You are free to use, modify, and share this project with proper attribution.
+
+---
 
 ##🌟 About Me
 
@@ -121,6 +123,8 @@ I enjoy building data pipelines, warehouses, and analytical dashboards that tran
 🔹 Skills: SQL, Python, ETL, Data Modeling, Tableau, Power BI, and Cloud Data Engineering.
 🔹 Background: Computer Science student (Cairo University), Microsoft Certified Data Analyst, and Freelance Data Engineer/Analyst.
 🔹 Goal: To leverage data in solving business challenges and create impactful analytics solutions.
+
+---
 
 ## Stay Connected
 - Mail: mhmdrby769@gmail.com

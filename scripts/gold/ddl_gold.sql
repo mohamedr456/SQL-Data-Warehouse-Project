@@ -1,7 +1,7 @@
 /*
-===============================================================================
-DDL Script: Create Gold Views
-===============================================================================
+ 
+-- DDL Script: Create Gold Views --
+ 
 Script Purpose:
     This script creates views for the Gold layer in the data warehouse. 
     The Gold layer represents the final dimension and fact tables (Star Schema)
@@ -11,19 +11,21 @@ Script Purpose:
 
 Usage:
     - These views can be queried directly for analytics and reporting.
-===============================================================================
+ 
 */
+
+
 
 -- =============================================================================
 -- Create Dimension: gold.dim_customers
 -- =============================================================================
-IF OBJECT_ID('gold.dim_customers', 'V') IS NOT NULL
+IF OBJECT_ID('gold.dim_customers', 'V') IS NOT NULL -- V for View
     DROP VIEW gold.dim_customers;
 GO
 
 CREATE VIEW gold.dim_customers AS
 SELECT
-    ROW_NUMBER() OVER (ORDER BY cst_id) AS customer_key, -- Surrogate key
+    ROW_NUMBER() OVER (ORDER BY cst_id)AS customer_key, -- Surrogate key
     ci.cst_id                          AS customer_id,
     ci.cst_key                         AS customer_number,
     ci.cst_firstname                   AS first_name,
@@ -31,7 +33,8 @@ SELECT
     la.cntry                           AS country,
     ci.cst_marital_status              AS marital_status,
     CASE 
-        WHEN ci.cst_gndr != 'n/a' THEN ci.cst_gndr -- CRM is the primary source for gender
+        WHEN ci.cst_gndr != 'n/a' THEN ci.cst_gndr -- CRM is the primary source for gender 
+--(When Data Examined, found that there's Inconsistant values in Gender so i assumed that's the correct gender is from CRM)
         ELSE COALESCE(ca.gen, 'n/a')  			   -- Fallback to ERP data
     END                                AS gender,
     ca.bdate                           AS birthdate,
@@ -42,6 +45,8 @@ LEFT JOIN silver.erp_cust_az12 ca
 LEFT JOIN silver.erp_loc_a101 la
     ON ci.cst_key = la.cid;
 GO
+
+
 
 -- =============================================================================
 -- Create Dimension: gold.dim_products
@@ -68,6 +73,8 @@ LEFT JOIN silver.erp_px_cat_g1v2 pc
     ON pn.cat_id = pc.id
 WHERE pn.prd_end_dt IS NULL; -- Filter out all historical data
 GO
+
+
 
 -- =============================================================================
 -- Create Fact Table: gold.fact_sales

@@ -1,7 +1,7 @@
 /*
-===============================================================================
-Quality Checks
-===============================================================================
+ 
+-- Quality Checks --
+ 
 Script Purpose:
     This script performs various quality checks for data consistency, accuracy, 
     and standardization across the 'silver' layer. It includes checks for:
@@ -14,8 +14,10 @@ Script Purpose:
 Usage Notes:
     - Run these checks after data loading Silver Layer.
     - Investigate and resolve any discrepancies found during the checks.
-===============================================================================
+ 
 */
+
+
 
 -- ====================================================================
 -- Checking 'silver.crm_cust_info'
@@ -36,10 +38,13 @@ SELECT
 FROM silver.crm_cust_info
 WHERE cst_key != TRIM(cst_key);
 
+-- Check if there's anomolies in low Cardinality Values
 -- Data Standardization & Consistency
 SELECT DISTINCT 
     cst_marital_status 
 FROM silver.crm_cust_info;
+
+
 
 -- ====================================================================
 -- Checking 'silver.crm_prd_info'
@@ -77,7 +82,9 @@ FROM silver.crm_prd_info;
 SELECT 
     * 
 FROM silver.crm_prd_info
-WHERE prd_end_dt < prd_start_dt;
+WHERE prd_end_dt < prd_start_dt; -- 'Start Date' Must be less than 'End Date'
+
+
 
 -- ====================================================================
 -- Checking 'silver.crm_sales_details'
@@ -116,6 +123,8 @@ WHERE sls_sales != sls_quantity * sls_price
    OR sls_price <= 0
 ORDER BY sls_sales, sls_quantity, sls_price;
 
+
+
 -- ====================================================================
 -- Checking 'silver.erp_cust_az12'
 -- ====================================================================
@@ -132,6 +141,8 @@ SELECT DISTINCT
     gen 
 FROM silver.erp_cust_az12;
 
+
+
 -- ====================================================================
 -- Checking 'silver.erp_loc_a101'
 -- ====================================================================
@@ -140,6 +151,8 @@ SELECT DISTINCT
     cntry 
 FROM silver.erp_loc_a101
 ORDER BY cntry;
+
+
 
 -- ====================================================================
 -- Checking 'silver.erp_px_cat_g1v2'

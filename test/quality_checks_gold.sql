@@ -1,7 +1,7 @@
 /*
-===============================================================================
-Quality Checks
-===============================================================================
+ 
+-- Quality Checks --
+ 
 Script Purpose:
     This script performs quality checks to validate the integrity, consistency, 
     and accuracy of the Gold Layer. These checks ensure:
@@ -11,8 +11,10 @@ Script Purpose:
 
 Usage Notes:
     - Investigate and resolve any discrepancies found during the checks.
-===============================================================================
+ 
 */
+
+
 
 -- ====================================================================
 -- Checking 'gold.dim_customers'
@@ -26,6 +28,8 @@ FROM gold.dim_customers
 GROUP BY customer_key
 HAVING COUNT(*) > 1;
 
+
+
 -- ====================================================================
 -- Checking 'gold.product_key'
 -- ====================================================================
@@ -37,6 +41,8 @@ SELECT
 FROM gold.dim_products
 GROUP BY product_key
 HAVING COUNT(*) > 1;
+
+
 
 -- ====================================================================
 -- Checking 'gold.fact_sales'

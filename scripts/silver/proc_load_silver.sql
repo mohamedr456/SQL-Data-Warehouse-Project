@@ -1,7 +1,7 @@
 /*
-===============================================================================
-Stored Procedure: Load Silver Layer (Bronze -> Silver)
-===============================================================================
+ 
+-- Stored Procedure: Load Silver Layer (Bronze ==>> Silver) --
+ 
 Script Purpose:
     This stored procedure performs the ETL (Extract, Transform, Load) process to 
     populate the 'silver' schema tables from the 'bronze' schema.
@@ -9,13 +9,9 @@ Script Purpose:
 		- Truncates Silver tables.
 		- Inserts transformed and cleansed data from Bronze into Silver tables.
 		
-Parameters:
-    None. 
-	  This stored procedure does not accept any parameters or return any values.
-
-Usage Example:
+Usage Example: To run this Stored Procedure Run the following line:
     EXEC Silver.load_silver;
-===============================================================================
+ 
 */
 
 CREATE OR ALTER PROCEDURE silver.load_silver AS
@@ -68,7 +64,7 @@ BEGIN
 			FROM bronze.crm_cust_info
 			WHERE cst_id IS NOT NULL
 		) t
-		WHERE flag_last = 1; -- Select the most recent record per customer
+		WHERE flag_last = 1; -- Select the most recent record per customer (When I examined the Data Found there is Updates on it so i retrieve only last updates info)
 		SET @end_time = GETDATE();
         PRINT '>> Load Duration: ' + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR) + ' seconds';
         PRINT '>> -------------';
@@ -90,7 +86,7 @@ BEGIN
 		)
 		SELECT
 			prd_id,
-			REPLACE(SUBSTRING(prd_key, 1, 5), '-', '_') AS cat_id, -- Extract category ID
+			REPLACE(SUBSTRING(prd_key, 1, 5), '-', '_') AS cat_id, -- Extract category ID (To enable Joining Tables from various Data Sources)
 			SUBSTRING(prd_key, 7, LEN(prd_key)) AS prd_key,        -- Extract product key
 			prd_nm,
 			ISNULL(prd_cost, 0) AS prd_cost,
@@ -101,11 +97,11 @@ BEGIN
 				WHEN UPPER(TRIM(prd_line)) = 'T' THEN 'Touring'
 				ELSE 'n/a'
 			END AS prd_line, -- Map product line codes to descriptive values
-			CAST(prd_start_dt AS DATE) AS prd_start_dt,
+			CAST(prd_start_dt AS DATE) AS prd_start_dt, -- Readable date Format 
 			CAST(
 				LEAD(prd_start_dt) OVER (PARTITION BY prd_key ORDER BY prd_start_dt) - 1 
 				AS DATE
-			) AS prd_end_dt -- Calculate end date as one day before the next start date
+			) AS prd_end_dt -- Calculate end date as one day before the next start date (becasue when Data Examined, i found unlogical Dates)
 		FROM bronze.crm_prd_info;
         SET @end_time = GETDATE();
         PRINT '>> Load Duration: ' + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR) + ' seconds';
@@ -132,8 +128,8 @@ BEGIN
 			sls_prd_key,
 			sls_cust_id,
 			CASE 
-				WHEN sls_order_dt = 0 OR LEN(sls_order_dt) != 8 THEN NULL
-				ELSE CAST(CAST(sls_order_dt AS VARCHAR) AS DATE)
+				WHEN sls_order_dt = 0 OR LEN(sls_order_dt) != 8 THEN NULL -- Execlude bad Dates
+				ELSE CAST(CAST(sls_order_dt AS VARCHAR) AS DATE) -- Can't change from Int to date Directly, so itno VARCHAR first.
 			END AS sls_order_dt,
 			CASE 
 				WHEN sls_ship_dt = 0 OR LEN(sls_ship_dt) != 8 THEN NULL
@@ -144,7 +140,7 @@ BEGIN
 				ELSE CAST(CAST(sls_due_dt AS VARCHAR) AS DATE)
 			END AS sls_due_dt,
 			CASE 
-				WHEN sls_sales IS NULL OR sls_sales <= 0 OR sls_sales != sls_quantity * ABS(sls_price) 
+				WHEN sls_sales IS NULL OR sls_sales <= 0 OR sls_sales != sls_quantity * ABS(sls_price)
 					THEN sls_quantity * ABS(sls_price)
 				ELSE sls_sales
 			END AS sls_sales, -- Recalculate sales if original value is missing or incorrect
@@ -171,7 +167,7 @@ BEGIN
 		)
 		SELECT
 			CASE
-				WHEN cid LIKE 'NAS%' THEN SUBSTRING(cid, 4, LEN(cid)) -- Remove 'NAS' prefix if present
+				WHEN cid LIKE 'NAS%' THEN SUBSTRING(cid, 4, LEN(cid)) -- When Data examined a not wanted prefix found, So removeing 'NAS' prefix if present.
 				ELSE cid
 			END AS cid, 
 			CASE
@@ -182,7 +178,7 @@ BEGIN
 				WHEN UPPER(TRIM(gen)) IN ('F', 'FEMALE') THEN 'Female'
 				WHEN UPPER(TRIM(gen)) IN ('M', 'MALE') THEN 'Male'
 				ELSE 'n/a'
-			END AS gen -- Normalize gender values and handle unknown cases
+			END AS gen -- Normalize gender values and handle unknown cases then into Readable format.
 		FROM bronze.erp_cust_az12;
 	    SET @end_time = GETDATE();
         PRINT '>> Load Duration: ' + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR) + ' seconds';
@@ -202,7 +198,7 @@ BEGIN
 			cntry
 		)
 		SELECT
-			REPLACE(cid, '-', '') AS cid, 
+			REPLACE(cid, '-', '') AS cid, -- To be able to join Tables togther.
 			CASE
 				WHEN TRIM(cntry) = 'DE' THEN 'Germany'
 				WHEN TRIM(cntry) IN ('US', 'USA') THEN 'United States'
